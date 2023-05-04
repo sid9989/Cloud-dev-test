@@ -1,0 +1,8 @@
+.Profile-row {
+    display: flex ;
+    justify-content: center
+}
+
+.Profile-column{
+    width: "45%"
+}

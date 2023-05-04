@@ -1,6 +1,7 @@
 import React, {useState, useEffect} from 'react'
 import logo from './images/pwc.png';
-import axios from 'axios';
+import axios, * as others from 'axios';
+import Profile from './Profile';
 
 
 const Page = ({...props}) =>{
@@ -8,28 +9,30 @@ const Page = ({...props}) =>{
     const [name, setName] = useState("");
     const [password, setPassword] = useState("");
     const [value, setValue] = useState("");
+    const [employee,setEmployee]= useState({});
     const [viewForm, setviewForm] = useState(true);
     const [showDisclaimer, setShowDisclaimer] = useState(false);
     const [showIncorrectPass, setShowIncorrectPass] = useState(false);
     const [disclaimer, setDisclaimer] = useState("");
-    const submitForm = (e) =>{
+    const fetch = () =>{
+        axios.get("https://88e51260-e7a7-4b07-af32-fdc87d10345c.mock.pstmn.io/employee/"+name).then(
+            (response)=>{
+                setEmployee(response.data)
+                console.log(employee.password)
+                if( password === response.data.password && name !== ""){
+                    setviewForm(false)
+                }
+                else if(password !== ""){
+                    setShowIncorrectPass(true)
+                }
+            }
+        )
+    }
+    const submitForm = async (e) =>{
         e.preventDefault()
-        if(name === password && value !== "" && name !== ""){
-            setviewForm(false)
-        }
-        else if(password !== ""){
-            setShowIncorrectPass(true)
-        }
+        await fetch()
 
-        if((value === "") && (password==="")){
-            setDisclaimer("Please select a role and enter password")
-            setShowDisclaimer(true)
-        }
-        else if(value === ""){
-            setDisclaimer("Please select a role")
-            setShowDisclaimer(true)
-        }
-        else if(password === ""){
+       if(password === ""){
             setDisclaimer("Please enter password")
             setShowDisclaimer(true)
         }
@@ -73,17 +76,13 @@ const Page = ({...props}) =>{
                             <input type="password" name="password" value={password} onChange={(e) => setPassword(e.target.value)}></input>
                         </label>
                         {showIncorrectPass && <div style={{color: "red"}}>Enter correct password</div>}
-                        <div onChange={onChangeValue} style={{paddingBottom: "10px"}}>
-                            <input type="radio" value="Employee" name="role" /> Employee
-                            <input type="radio" value="Admin" name="role" /> Admin
-                        </div>
-                        {showDisclaimer && <div style={{color: "red"}}>{disclaimer}</div>}
                         <input type="submit" value="Submit" onClick={submitForm}/>
                     </form>
                     :
                     <div>
-                        <p>Hello {name}, you are an {value}</p>
+                        <p>Hello {employee.username + " " +employee.lastName}, you are an {employee.role}</p>
                         <input type="submit" value="Bye" onClick={onBye}/>
+                        <Profile employee={employee}/>
                     </div>
                 }
             </div>
